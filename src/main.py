@@ -8,6 +8,7 @@ import requests
 from contextlib import closing
 import csv
 
+
 class datScraper:
     """
     path handler 1st
@@ -53,3 +54,53 @@ class datScraper:
     def clear(self,var):
         var = [] if isinstance(var,list) else None
         return var
+files_path = r"https://winderosionnetwork.org/files/"
+
+sites = ["akron", "bigspring", "cper", "heartrockranch",
+        "holloman", "jornada", "lordsburg",
+        "moab", "morton", "northernplains", "pullman", "redhills",
+        "sanluis", "southernplains", "twinvalley"]
+
+historic_files = {
+"akron":["Akron_MetData_2018.csv"],
+"bigspring":["BigSpring_MetData_2018.csv","BigSpring_MetData_2017.csv",
+             "BigSpring_MetData_2016.csv"],
+"cper":["CPER_MetData_2015.csv","CPER_MetData_2016.csv","CPER_MetData_2017.csv",
+        "CPER_MetData_2018.csv"],
+"heartrockranch": ["Bellevue_MetData_2015.csv","Bellevue_MetData_2016.csv",
+                    "Bellevue_MetData_2017.csv","Bellevue_MetData_2018.csv"],
+"holloman":["Holloman_MetData_2015.csv","Holloman_MetData_2016.csv",
+            "Holloman_MetData_2017.csv","Holloman_MetData_2018.csv"],
+"jornada": ["JER_MetData_2015.csv","JER_MetData_2016.csv",
+            "JER_MetData_2017.csv","JER_MetData_2018.csv"],
+# "lordsburg":[],
+"moab": ["Moab_MetData_2016.csv","Moab_MetData_2017.csv","Moab_MetData_2018.csv"],
+# "morton":[],
+"northernplains":["Mandan_MetData_2015.csv", "Mandan_MetData_2016.csv",
+                    "Mandan_MetData_2017.csv","Mandan_MetData_2018.csv"],
+"pullman": ["Pullman_MetData_2016.csv","Pullman_MetData_2017.csv","Pullman_MetData_2018.csv"],
+
+"redhills": ["RedHills_MetData_2019.csv"],
+"sanluis": ["SanLuis_MetData_2015.csv","SanLuis_MetData_2016.csv","SanLuis_MetData_2017.csv",
+            "SanLuis_MetData_2018.csv"],
+"southernplains":["ElReno_MetData_2017.csv", "ElReno_MetData_2018.csv"],
+"twinvalley":["TwinValley_MetData_2019.csv"]
+}
+
+current_data = {
+"akron": r"datfiles/Akron/AkronTable1.dat",
+"bigspring":"datfiles/BigSpring/BigSpringTable1.dat",
+"cper":"datfiles/CPER/CPERTable1.dat",
+"heartrockranch":"datfiles/Bellevue/BellevueTable1.dat",
+"holloman":"datfiles/Holloman/HollomanTable1.dat",
+"jornada":"datfiles/JER/JERTable1.dat",
+"lordsburg":"datfiles/Lordsburg/LordsburgTable1.dat",
+"moab":"datfiles/Moab/MoabTable1.dat",
+"morton":"datfiles/Morton/MortonTable1.dat",
+"northernplains":"datfiles/Mandan/MandanTable1.dat",
+"pullman":"datfiles/Pullman/PullmanTable1.dat",
+"redhills":"datfiles/RedHills/RedHillsTable1.dat",
+"sanluis":"datfiles/SanLuis/SanLuisTable1.dat",
+"southernplains":"datfiles/ElReno/ElRenoTable1.dat",
+"twinvalley":"datfiles/TwinValley/TwinValleyTable1.dat"
+}
