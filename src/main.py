@@ -54,6 +54,22 @@ class datScraper:
     def clear(self,var):
         var = [] if isinstance(var,list) else None
         return var
+
+def path_handler(site,historic=False,year=None):
+    if historic==False and year==None:
+        prepath = m_path
+        realpath = os.path.join(prepath,current_data[site])
+        return realpath
+    elif historic==True and year!=None and isinstance(int(year),int)==True:
+        prepath = m_path
+        for i in historic_files[site]:
+            if str(year) in i:
+                specific_file = i
+        realpath = os.path.join(prepath, specific_file)
+        return realpath
+    else:
+        print("site or year not found")
+
 files_path = r"https://winderosionnetwork.org/files/"
 
 sites = ["akron", "bigspring", "cper", "heartrockranch",
