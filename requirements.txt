@@ -1,0 +1,14 @@
+pandas == 1.0.3
+numpy == 1.18.1
+celery == 4.4.7
+
+tqdm == 4.46.0
+urllib3 == 1.25.8
+
+
+requests == 2.23.0
+pydantic == 1.4
+fastapi == 0.61.1
+uvicorn == 0.11.3
+gunicorn
+starlette == 0.13.6

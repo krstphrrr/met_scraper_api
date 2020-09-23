@@ -7,7 +7,15 @@ from pandas.io.json import json_normalize
 import requests
 from contextlib import closing
 import csv
+# import src.celeryconfig as celeryconfig
+from celery import Celery
 
+cel = Celery()
+
+# @cel.task
+# def test_task():
+#     print("test ok")
+cel.config_from_object('src.celeryconfig')
 
 class datScraper:
     """
