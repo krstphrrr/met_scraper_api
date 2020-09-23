@@ -13,7 +13,7 @@ EXPOSE 5011
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-CMD ["celery", "-A", "src.main", "worker", "-l", "info"]
+CMD ["celery", "-A", "src.main", "worker", "-l", "info", "-B"]
 
 
 # docker image build -t post_api

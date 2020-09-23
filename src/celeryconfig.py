@@ -10,7 +10,7 @@ from datetime import timedelta
 
 CELERYBEAT_SCHEDULE = {
     'test_task':{
-        'task':'tasks.test_task',
+        'task':'src.tasks.test_task',
         'schedule':timedelta(seconds=10),
     },
 }
