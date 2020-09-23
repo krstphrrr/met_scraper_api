@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 RUN apt-get update
 
-RUN apt-get install python python3-pip
+RUN apt-get install python python3-pip -y
 
 WORKDIR /usr/src
 
