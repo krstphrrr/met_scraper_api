@@ -1,10 +1,8 @@
 from celery.task import task
-import requests
+import requests, csv, os, os.path, pandas as pd
 from contextlib import closing
-import csv
-import os, os.path
-import pandas as pd
 from dima.tabletools import tablecheck
+from utils.tools import db
 
 
 @task()
@@ -13,13 +11,100 @@ def test_task():
     # check if table exists
     if tablecheck("met_data", "met"):
         print("table found")
+        # create dataframes
+        for i in historic_files.items():
+            for j in i[1]:
+                # extract
+                fullpath = os.path.join(files_path,j)
+                projk = projectkey_extractor(fullpath)
+                ins = datScraper(fullpath)
+                df = ins.df
+                df['ProjectKey'] = projk
+                # check if datetime range AND project key exists
+                print(f"for {projk}; does the timerange + projkey exists? ", sql_command_daterange(dataframe_range_extract(df)))
+                # prit
+
     else:
         print("table not found")
+        #create table
+# test_task()
+def projectkey_extractor(path):
+    if os.path.splitext(os.path.basename(path))[1]=='.csv':
+        return [i.lower() for i in os.path.basename(path).split('_') if ("Met" not in i) and (os.path.splitext(i)[1]=='')][0]
+    elif os.path.splitext(os.path.basename(path))[1]=='.dat':
+        return [i.lower() for i in os.path.basename(path).split('Table') if (os.path.splitext(i)[1]=='')][0]
 
 
-def timestamp_check():
+# def timestamp_check(dataframe):
+#     pass
+
+# d = datScraper(df2)
+def pg_timestamp_check():
     pass
 
+def sql_command_daterange(date_key_tuple):
+    """
+    """
+    date1=date_key_tuple[0]
+    date2=date_key_tuple[1]
+    pk=date_key_tuple[2]
+    str=f"""
+    SELECT EXISTS(
+        SELECT *
+        FROM public.met_data
+        WHERE (
+            "TIMESTAMP" >= '{date1}'::timestamp
+            AND
+            "TIMESTAMP" < '{date2}'::timestamp
+              ) and "ProjectKey"='{pk}'
+    );
+
+    """
+    try:
+        d= db('met')
+        con = d.str
+        cur = con.cursor()
+        cur.execute(str)
+        if cur.fetchone()[0]:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        con = d.str
+        cur = con.cursor()
+
+
+#
+# sql_command_daterange(dataframe_range_extract(df))
+def dataframe_range_extract(df):
+    datapack = {}
+    # REPORTBACK: CPER table 2017 has a bunch of mising timestamps
+    minimum = min(df.TIMESTAMP.astype("datetime64"))
+    maximum = max(df.TIMESTAMP.astype("datetime64"))
+    projk = df.ProjectKey.unique()[0]
+    return (minimum,maximum, projk)
+
+# def batch_check():
+#     internal_dict = {}
+#     # count=1
+#     for i in current_data.items():
+#         print("processing: ",i)
+#         fullpath = os.path.join(files_path,i[1])
+#         r = requests.get(fullpath)
+#         if r.status_code == requests.codes.ok:
+#             projk = projectkey_extractor(fullpath)
+#             d = datScraper(fullpath)
+#             internal_dict.update({projk:d.df.shape})
+#     return internal_dict
+# p = os.path.join(files_path,historic_files['bigspring'][1])
+# d = datScraper(p)
+# df = d.df
+# df['ProjectKey'] = projectkey_extractor(p)
+# dataframe_range_extract(df)
+# dataframe_range_extract(df)
+
+# sql_command_daterange(dataframe_range_extract(df))
 class datScraper:
     """
     path handler 1st
@@ -28,6 +113,8 @@ class datScraper:
         [self.clear(a) for a in dir(self) if not a.startswith('__') and not callable(getattr(self,a))]
         self.arrays = []
         self.path = path
+
+
 
         if (os.path.splitext(self.path)[1]=='.dat') and ('https' in self.path):
             """
@@ -39,6 +126,7 @@ class datScraper:
                     if index<=3:
                         split_line = each_line.split(",")
                         self.arrays.append([each_character.replace("\"","") for each_character in split_line])
+
         elif (os.path.splitext(self.path)[1]==".csv") and ('https' in self.path):
             with closing(requests.get(self.path, stream=True)) as r:
                 f=(line.decode('utf-8') for line in r.iter_lines())
@@ -46,9 +134,9 @@ class datScraper:
                 for index, each_line in enumerate(reader):
                     if index<=3:
                         self.arrays.append([each_character.replace("\"","") for each_character in each_line])
-        while len(self.arrays[0])<25:
-            temp_space = ''
-            self.arrays[0].append(temp_space)
+        # while len(self.arrays[0])<25:
+        #     temp_space = ''
+        #     self.arrays[0].append(temp_space)
 
         self.arrays = self.arrays[1]
         for n,i in enumerate(self.arrays):
@@ -56,7 +144,8 @@ class datScraper:
                 self.arrays[n]=i.replace('%', 'perc')
 
         if os.path.splitext(self.path)[1]=='.dat':
-            self.df = pd.read_table(self.path, sep=",", skiprows=4, low_memory=False)
+            #REPORTBACK: line 11138(or line 11139 if not 0-index) is malformed in the currently posted DAT file
+            self.df = pd.read_table(self.path, sep=",", skiprows=4, low_memory=False) if ('Pullman' not in self.path) else pd.read_table(path, sep=",", skiprows=[0,1,2,3,11138], low_memory=False)
         elif os.path.splitext(self.path)[1]==".csv":
             self.df = pd.read_csv(self.path, skiprows=4, low_memory=False)
 
