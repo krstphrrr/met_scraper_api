@@ -1,6 +1,6 @@
 import pandas as pd
-from utils.tools import db
-from utils.arcnah import arcno
+from src.utils.tools import db
+from src.utils.arcnah import arcno
 import os
 from psycopg2 import sql
 import numpy as np
@@ -125,7 +125,7 @@ def sql_command(typedict:{}, name:str, db:str=None):
     # dimas in postgres
     "dima":"postgres",
     # met data in gisdb
-    "met":"n_dats",
+    "met":"met_data",
     # tall tables
     "gisdb": "gisdb",
     # nri

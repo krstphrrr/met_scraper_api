@@ -1,18 +1,18 @@
-from utils.arcnah import arcno
+from src.utils.arcnah import arcno
 import os
 from os.path import normpath, split, splitext, join
-from utils.tools import db, config
+from src.utils.tools import db, config
 from sqlalchemy import create_engine
 
 from datetime import datetime
 from psycopg2 import sql
 import pandas as pd
 
-from projects.dima.handler import switcher, tableswitch
-from projects.dima.tabletools import fix_fields, new_tablename, table_create, \
+from src.dima.handler import switcher, tableswitch
+from src.dima.tabletools import fix_fields, new_tablename, table_create, \
 tablecheck, csv_fieldcheck, blank_fixer, significant_digits_fix_pandas, \
 float_field, openingsize_fixer, datetime_type_assert
-from projects.tall_tables.talltables_handler import ingesterv2
+from src.tall_tables.talltables_handler import ingesterv2
 
 
 def main_translate(tablename:str, dimapath:str, debug=None):

@@ -1,15 +1,16 @@
 from celery.task import task
 import requests, csv, os, os.path, pandas as pd
 from contextlib import closing
-from dima.tabletools import tablecheck
-from utils.tools import db
-
-
+from src.dima.tabletools import tablecheck, table_create
+from src.utils.tools import db
+from src.tall_tables.talltables_handler import ingesterv2
+# help(table_create)
 @task()
 def test_task():
-    # print("test ok")
+    print("test ok")
     # check if table exists
-    if tablecheck("met_data", "met"):
+    d = db("met")
+    if tablecheck("raw_met_data", "met"):
         print("table found")
         # create dataframes
         for i in historic_files.items():
@@ -20,14 +21,151 @@ def test_task():
                 ins = datScraper(fullpath)
                 df = ins.df
                 df['ProjectKey'] = projk
+                date_key = dataframe_range_extract(df)
                 # check if datetime range AND project key exists
-                print(f"for {projk}; does the timerange + projkey exists? ", sql_command_daterange(dataframe_range_extract(df)))
-                # prit
-
+                if sql_command_daterange(date_key):
+                    print(f"MET data for range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]} already exists; moving on..")
+                else:
+                    print(f" Ingesting Met data for date range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]}")
+                    ingesterv2.main_ingest(df,"raw_met_data", d.str, 100000)
+                    print("ingestion finished. Moving on...")
     else:
         print("table not found")
+        # creating new table
+        pg_table_template_PATH = os.path.join(files_path,historic_files['akron'][0])
+        INSTANCE = datScraper(pg_table_template_PATH)
+        pg_table_template_DATAFRAME = INSTANCE.df
+        table_create(pg_table_template_DATAFRAME, "raw_met_data", "met")
+
+        for i in historic_files.items():
+            for j in i[1]:
+                # extract
+                fullpath = os.path.join(files_path,j)
+                projk = projectkey_extractor(fullpath)
+                ins = datScraper(fullpath)
+                df = ins.df
+                df['ProjectKey'] = projk
+                date_key = dataframe_range_extract(df)
+                # check if datetime range AND project key exists
+                if sql_command_daterange(date_key):
+                    print(f"MET data for range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]} already exists; moving on..")
+                else:
+                    print(f" Ingesting Met data for date range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]}")
+                    ingesterv2.main_ingest(df,"raw_met_data", d.str, 100000)
+                    print("ingestion finished. Moving on...")
+
         #create table
 # test_task()
+
+# p = os.path.join(files_path,historic_files['akron'][0])
+# def batch_ingest():
+#     for i in historic_files.items():
+#         for j in i[1]:
+#             print(j)
+# batch_ingest()
+#
+
+
+
+# quick_ingest(historic_files)
+def quick_ingest(whichset):
+
+    internal_dict = {}
+    selectedset=whichset
+    # for current data
+    count=1
+    if isinstance(whichset['akron'],str):
+        for i in selectedset.items():
+            if "BellevueTable1" not in i:
+                print("processing: ",i)
+                fullpath = os.path.join(files_path,i[1])
+                projk = projectkey_extractor(fullpath)
+                inst = datScraper(fullpath)
+                df = inst.df
+                df['ProjectKey'] = projk
+
+                internal_dict.update({f"df{count}":df})
+                count+=1
+
+        # return internal_dict
+        # for historic data
+    elif isinstance(whichset['akron'],list):
+        for i in selectedset.items():
+            for j in i[1]:
+                # print(j)
+                print("processing: ",j)
+                fullpath = os.path.join(files_path,j)
+                projk = projectkey_extractor(fullpath)
+                inst = datScraper(fullpath)
+                df = inst.df
+                df['ProjectKey'] = projk
+
+                internal_dict.update({f"df{count}":df})
+                count+=1
+    # for i in internal_dict.items():
+    finaldf = pd.concat([i[1] for i in internal_dict.items()])
+    table_create(finaldf, "raw_met_data","met") if tablecheck("raw_met_data", "met")!=True else None
+    try:
+        d = db("met")
+        ingesterv2.main_ingest(finaldf, "raw_met_data", d.str, 100000)
+    except Exception as e:
+        print(e)
+        d = db("met")
+
+# help(ingesterv2.main_ingest)
+# tablecheck("raw_met_data", "met")
+        # return internal_dict
+# help(table_create)
+# help(tablecheck)
+# for i in
+
+# row_check(df10)
+#
+# df.iloc[0:1].TIMESTAMP.values[0]
+def row_check(df):
+    for i in range(len(df)):
+
+        try:
+            if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], df.iloc[i:i+1].ProjectKey.values[0]):
+                print("found timestap:",df.iloc[i:i+1])
+            else:
+                print("did not find timestamp")
+        except Exception as e:
+            print(e)
+
+# pg_check('2020/01/01 00:01:00', "Akron")
+def pg_check(timestamp, projectkey):
+    qry=f"""SELECT EXISTS(
+                SELECT *
+                FROM public.met_data
+                WHERE
+                    "TIMESTAMP"='{timestamp}'
+                and
+                    "ProjectKey"='{projectkey}');;;
+        """
+    try:
+        d= db('met')
+        con = d.str
+        cur = con.cursor()
+        cur.execute(qry)
+        if cur.fetchone()[0]:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        con = d.str
+        cur = con.cursor()
+
+
+
+
+
+
+
+
+
+
 def projectkey_extractor(path):
     if os.path.splitext(os.path.basename(path))[1]=='.csv':
         return [i.lower() for i in os.path.basename(path).split('_') if ("Met" not in i) and (os.path.splitext(i)[1]=='')][0]
@@ -43,15 +181,13 @@ def pg_timestamp_check():
     pass
 
 def sql_command_daterange(date_key_tuple):
-    """
-    """
     date1=date_key_tuple[0]
     date2=date_key_tuple[1]
     pk=date_key_tuple[2]
     str=f"""
     SELECT EXISTS(
         SELECT *
-        FROM public.met_data
+        FROM public.raw_met_data
         WHERE (
             "TIMESTAMP" >= '{date1}'::timestamp
             AND
@@ -84,20 +220,46 @@ def dataframe_range_extract(df):
     maximum = max(df.TIMESTAMP.astype("datetime64"))
     projk = df.ProjectKey.unique()[0]
     return (minimum,maximum, projk)
+# isinstance(current_data['akron'],list)
+def batch_check(whichset):
+    internal_dict = {}
+    selectedset=whichset
+    if isinstance(whichset['akron'],str):
+        for i in selectedset.items():
+            print("processing: ",i)
+            fullpath = os.path.join(files_path,i[1])
+            r = requests.get(fullpath)
+            if r.status_code == requests.codes.ok:
+                projk = projectkey_extractor(fullpath)
+                # d = datScraper(fullpath)
+                # internal_dict.update({projk:d.df.shape})
+                internal_dict.update({projk:r.status_code})
+            else:
+                print(f"path {i} was not found; status code: ",r.status_code)
+        return internal_dict
+    elif isinstance(whichset['akron'],list):
+        for i in selectedset.items():
+            for j in i[1]:
+                print(j)
+                print("processing: ",j)
+                fullpath = os.path.join(files_path,j)
+                r = requests.get(fullpath)
+                if r.status_code == requests.codes.ok:
+                    projk = projectkey_extractor(fullpath)
+                    # d = datScraper(fullpath)
+                    # internal_dict.update({projk:d.df.shape})
+                    internal_dict.update({projk:r.status_code})
+                else:
+                    print(f"path {j} was not found; status code: ",r.status_code)
+        return internal_dict
 
-# def batch_check():
-#     internal_dict = {}
-#     # count=1
-#     for i in current_data.items():
-#         print("processing: ",i)
-#         fullpath = os.path.join(files_path,i[1])
-#         r = requests.get(fullpath)
-#         if r.status_code == requests.codes.ok:
-#             projk = projectkey_extractor(fullpath)
-#             d = datScraper(fullpath)
-#             internal_dict.update({projk:d.df.shape})
-#     return internal_dict
-# p = os.path.join(files_path,historic_files['bigspring'][1])
+# batch_check(historic_files)
+# batch_check()
+
+
+# requests.get(p).status_code
+# p = os.path.join(files_path,current_data['heartrockranch'])
+# p
 # d = datScraper(p)
 # df = d.df
 # df['ProjectKey'] = projectkey_extractor(p)
@@ -144,8 +306,8 @@ class datScraper:
                 self.arrays[n]=i.replace('%', 'perc')
 
         if os.path.splitext(self.path)[1]=='.dat':
-            #REPORTBACK: line 11138(or line 11139 if not 0-index) is malformed in the currently posted DAT file
-            self.df = pd.read_table(self.path, sep=",", skiprows=4, low_memory=False) if ('Pullman' not in self.path) else pd.read_table(path, sep=",", skiprows=[0,1,2,3,11138], low_memory=False)
+            #REPORTBACK: line 11138(or line 11139 if not 0-index) is malformed in the currently posted DAT file for Pullman
+            self.df = pd.read_table(self.path, sep=",", skiprows=4, low_memory=False) if ('PullmanTable1' not in self.path) else pd.read_table(path, sep=",", skiprows=[0,1,2,3,11138], low_memory=False)
         elif os.path.splitext(self.path)[1]==".csv":
             self.df = pd.read_csv(self.path, skiprows=4, low_memory=False)
 
