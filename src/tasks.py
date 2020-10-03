@@ -4,14 +4,15 @@ from contextlib import closing
 from src.dima.tabletools import tablecheck, table_create
 from src.utils.tools import db
 from src.tall_tables.talltables_handler import ingesterv2
+import time
+import io
 # help(table_create)
-# @task()
-
+@task()
 def test_task():
     print("test ok")
     df_dict = {}
     # check if table exists
-    d = db("met")
+
     count=1
     if tablecheck("raw_met_data", "met"):
         print("table found")
@@ -26,79 +27,25 @@ def test_task():
                 df = ins.getdf()
                 df = col_name_fix(df)
                 df = new_instrumentation(df)
-                df['ProjectKey'] = projk.lower()
+                df['ProjectKey'] = projk.lower() # adding projectkey to dataframe
+                print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
-                row_check(smallerdf)
 
-                # date_key = dataframe_range_extract(df)
 
-                # check if datetime range AND project key exists
-                # if sql_command_daterange(date_key):
-                #     print(f"MET data for range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]} already exists; moving on..")
-                # else:
-                #     print(f" Ingesting Met data for date range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]}")
-                #     # ingesterv2.main_ingest(df,"raw_met_data", d.str, 100000)
-                #     return df
-                #     print("ingestion finished. Moving on...")
-                # df_dict.update({f'df{count}':df})
-                df_dict.update({f'df{count}':i[1]})
+                df_dict.update({f'df{count}':smallerdf})
                 count+=1
-        return df_dict
-        # return pd.concat([i[1] for i in df_dict.items()])
+        # return df_dict
+        print("assembling new dataframe")
+        finaldf = pd.concat([i[1] for i in df_dict.items()])
+        print("starting row check and ingest")
+        row_check(finaldf)
+
 
     else:
         print("table not found")
-        # creating new table
-        # pg_table_template_PATH = os.path.join(files_path,historic_files['akron'][0])
-        # INSTANCE = datScraper(pg_table_template_PATH)
-        # pg_table_template_DATAFRAME = INSTANCE.df
-        # table_create(pg_table_template_DATAFRAME, "raw_met_data", "met")
-        #
-        # for i in historic_files.items():
-        #     for j in i[1]:
-        #         # extract
-        #         fullpath = os.path.join(files_path,j)
-        #         projk = projectkey_extractor(fullpath)
-        #         ins = datScraper(fullpath)
-        #         df = ins.df
-        #         df['ProjectKey'] = projk
-        #         date_key = dataframe_range_extract(df)
-        #         # check if datetime range AND project key exists
-        #         if sql_command_daterange(date_key):
-        #             print(f"MET data for range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]} already exists; moving on..")
-        #         else:
-        #             print(f" Ingesting Met data for date range: {date_key[0]} to {date_key[1]} with projectkey {date_key[2]}")
-        #             ingesterv2.main_ingest(df,"raw_met_data", d.str, 100000)
-        #             print("ingestion finished. Moving on...")
-
-        #create table
-# test_task()
-
-# p = os.path.join(files_path,historic_files['akron'][0])
-# def batch_ingest():
-#     for i in historic_files.items():
-#         for j in i[1]:
-#             print(j)
-# batch_ingest()
-import time
-import io
 
 
-
-
-
-#
-#
-# df = pd.read_table(os.path.join(files_path,current_data['jornada']),sep=',',skiprows=4, nrows=5)
-# df
-# quick_check(os.path.join(files_path,current_data['jornada']))
-# quick_check(os.path.join(files_path,current_data['jornada']))
-# @myTimer
-#
-# bod = ret_iterable(p)
-#
-#
-df =quick_check(os.path.join(files_path,current_data['akron']))
+# df =quick_check(os.path.join(files_path,current_data['akron']))
 
 def quick_check(path):
     arrays = []
@@ -119,9 +66,6 @@ def quick_check(path):
     df.columns = arrays
     return df
 
-
-
-# quick_ingest(historic_files)
 def quick_ingest(whichset):
 
     internal_dict = {}
@@ -170,28 +114,8 @@ def quick_ingest(whichset):
         print(e)
         d = db("met")
 
-# help(ingesterv2.main_ingest)
-# tablecheck("raw_met_data", "met")
-        # return internal_dict
-# help(table_create)
-# help(tablecheck)
-# for i in
-
-# row_check(df10)
-#
-# df.iloc[0:1].TIMESTAMP.values[0]
-# df1 = df[:5].copy()
-# df1['ProjectKey'] = 'Akron'
-#
-# row_check(df1)
-corrdf = df[:5].copy()
-evensmaller = smalldf[:5]
-row_check(evensmaller)
-corrdf['ProjectKey'] = "Akron"
-
-row_check(corrdf)
-
 def row_check(df):
+    d = db("met")
     for i in range(len(df)):
 
         try:
@@ -201,8 +125,8 @@ def row_check(df):
                 ingesterv2.main_ingest(df.iloc[i:i+1],"raw_met_data", d.str, 10000)
         except Exception as e:
             print(e)
+            d = db("met")
 
-# pg_check('2020/01/01 00:01:00', "Akron")
 def pg_check(timestamp, projectkey):
     qry=f"""SELECT EXISTS(
                 SELECT *
@@ -261,9 +185,6 @@ def pull_max_date(projectkey):
         con = d.str
         cur = con.cursor()
 
-
-# smalldf = date_slice_df(df, 'Akron')
-
 def date_slice_df(df, projectkey):
     # projectk = projectkey.capitalize()
     max = pull_max_date(projectkey)
@@ -278,21 +199,12 @@ def date_slice_df(df, projectkey):
     else:
         return 'Not MET-derived dataframe or TIMESTAMP field not available'
 
-
-
-
-
 def projectkey_extractor(path):
     if os.path.splitext(os.path.basename(path))[1]=='.csv':
         return [i.lower() for i in os.path.basename(path).split('_') if ("Met" not in i) and (os.path.splitext(i)[1]=='')][0]
     elif os.path.splitext(os.path.basename(path))[1]=='.dat':
         return [i.lower() for i in os.path.basename(path).split('Table') if (os.path.splitext(i)[1]=='')][0]
 
-
-# def timestamp_check(dataframe):
-#     pass
-
-# d = datScraper(df2)
 def pg_timestamp_check():
     pass
 
@@ -326,8 +238,7 @@ def sql_command_daterange(date_key_tuple):
         con = d.str
         cur = con.cursor()
 
-#
-# sql_command_daterange(dataframe_range_extract(df))
+
 def dataframe_range_extract(dataframe):
     datapack = {}
     # REPORTBACK: CPER table 2017 has a bunch of mising timestamps
@@ -381,27 +292,7 @@ def batch_check(whichset):
                     print(f"path {j} was not found; status code: ",r.status_code)
         return internal_dict
 
-# batch_check(historic_files)
-# batch_check()
 
-
-# requests.get(p).status_code
-# p = os.path.join(files_path,historic_files['pullman'][1])
-# # # p
-# d = datScraper(p)
-# df = d.df
-# pd.isnull()
-# import numpy as np
-# df = df.loc[pd.isnull(df.TIMESTAMP)!=True] if any(pd.isnull(df.TIMESTAMP.unique())) else df
-# df
-# np.nan in df.TIMESTAMP.unique()
-# #pullman2016 has nulls
-# df.loc[pd.isnull(df.TIMESTAMP)!=True]
-# df['ProjectKey'] = projectkey_extractor(p)
-# dataframe_range_extract(df)
-# dataframe_range_extract(df)
-
-# sql_command_daterange(dataframe_range_extract(df))
 class datScraper:
     """
     path handler 1st

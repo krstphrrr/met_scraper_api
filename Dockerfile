@@ -23,6 +23,6 @@ RUN chown -R  nobody:nogroup /usr/src
 CMD ["celery", "-A", "src.main", "worker", "-l", "info", "-B", "--uid=nobody","--gid=nogroup"]
 
 
-# docker image build -t post_api
+# docker image build -t celery
 # docker container run --rm -d --name post_api -p 5009:5009 post_api
 # uvicorn main:app --host 0.0.0.0 --port 5009
