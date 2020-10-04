@@ -159,7 +159,7 @@ def tablecheck(tablename, conn="dima"):
 
     """
     try:
-        d = db(f'{conn}')
+        d = db(conn)
         con = d.str
         cur = con.cursor()
         cur.execute("select exists(select * from information_schema.tables where table_name=%s)", (f'{tablename}',))
