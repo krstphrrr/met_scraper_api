@@ -7,6 +7,15 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 # help(table_create)
+test_data = {"akron": r"datfiles/Akron/AkronTable1.dat"}
+
+#
+# for i in current_data.items():
+#     print(i)
+# p = os.path.join(files_path,current_data['morton'])
+# datScraper(p)
+
+
 @task()
 def test_task():
     print("test ok")
@@ -18,17 +27,18 @@ def test_task():
         print("table found")
         # create dataframes
         # while len(df_dict)<3:
-        for i in current_data.items():
+        for i in test_data.items():
             if 'BellevueTable1' not in i[1]:
                 print(i[1])
                 fullpath = os.path.join(files_path,i[1])
                 projk = projectkey_extractor(fullpath)
+                print("entering scraper 2 df function..")
                 ins = datScraper(fullpath)
                 df = ins.getdf()
                 df = col_name_fix(df)
                 df = new_instrumentation(df)
                 df['ProjectKey'] = projk.lower() # adding projectkey to dataframe
-                print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
+                print(f'creating timestamp slice with dataframe {count} of {len(test_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
 
 
@@ -308,6 +318,7 @@ class datScraper:
             """
             if its an online .dat file
             """
+            print("assembling dataframe from dat..")
             with closing(requests.get(self.path, stream=True)) as r:
                 all_lines =(line.decode('utf-8') for line in r.iter_lines())
                 for index,each_line in enumerate(all_lines):
@@ -343,7 +354,7 @@ class datScraper:
         var = [] if isinstance(var,list) else None
         return var
     def getdf(self):
-
+        print("fixing fields..")
         # print("fixing '\\n' in field names..")
         for i in self.df.columns:
             if '\n' in i:
@@ -373,6 +384,7 @@ class datScraper:
             if 'Albedo_Avg' in i:
                 self.df.Albedo_Avg = self.df.Albedo_Avg.astype(float)
                 self.df.Albedo_Avg = self.df.Albedo_Avg.apply(lambda x: np.nan if (x==np.inf) or (x==-np.inf) else x)
+        print("returning dataframe")
         return self.df
 
 def second_round(df):
