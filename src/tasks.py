@@ -7,7 +7,7 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 # help(table_create)
-test_data = {"akron": r"datfiles/Akron/AkronTable1.dat"}
+# test_data = {"akron": r"datfiles/Akron/AkronTable1.dat"}
 
 #
 # for i in current_data.items():
@@ -27,7 +27,7 @@ def test_task():
         print("table found")
         # create dataframes
         # while len(df_dict)<3:
-        for i in test_data.items():
+        for i in current_data.items():
             if 'BellevueTable1' not in i[1]:
                 print(i[1])
                 fullpath = os.path.join(files_path,i[1])
@@ -38,7 +38,7 @@ def test_task():
                 df = col_name_fix(df)
                 df = new_instrumentation(df)
                 df['ProjectKey'] = projk.lower() # adding projectkey to dataframe
-                print(f'creating timestamp slice with dataframe {count} of {len(test_data)}..')
+                print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
 
 
