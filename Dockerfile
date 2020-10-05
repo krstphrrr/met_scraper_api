@@ -20,7 +20,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # reducing celery privileges = https://stackoverflow.com/a/59659476
 RUN chown -R  nobody:nogroup /usr/src
 
-CMD ["celery", "-A", "src.main", "worker", "-l", "info", "-B", "--uid=nobody","--gid=nogroup"]
+CMD ["celery", "-A", "src.main", "worker", "-l", "info", "--without-gossip", "-B", "--uid=nobody","--gid=nogroup"]
 
 
 # docker image build -t celery
