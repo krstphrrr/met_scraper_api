@@ -265,6 +265,7 @@ def dataframe_range_extract(dataframe):
     else:
         print(dataframe.columns)
 # isinstance(current_data['akron'],list)
+
 def batch_check(whichset):
     internal_dict = {}
     selectedset=whichset
@@ -540,11 +541,11 @@ def new_instrumentation(df):
 
 def path_handler(site,historic=False,year=None):
     if historic==False and year==None:
-        prepath = m_path
+        prepath = files_path
         realpath = os.path.join(prepath,current_data[site])
         return realpath
     elif historic==True and year!=None and isinstance(int(year),int)==True:
-        prepath = m_path
+        prepath = files_path
         for i in historic_files[site]:
             if str(year) in i:
                 specific_file = i
@@ -587,7 +588,7 @@ historic_files = {
 }
 
 current_data = {
-"akron": r"datfiles/Akron/AkronTable1.dat",
+"akron": "datfiles/Akron/AkronTable1.dat",
 "bigspring":"datfiles/BigSpring/BigSpringTable1.dat",
 "cper":"datfiles/CPER/CPERTable1.dat",
 "heartrockranch":"datfiles/Bellevue/BellevueTable1.dat",
