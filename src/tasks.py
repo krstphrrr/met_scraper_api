@@ -16,7 +16,36 @@ import io
 # datScraper(p)
 
 
-@task()
+# @task()
+test = test_task()
+# current_data['akron']
+
+# fullpath = os.path.join(files_path,current_data['bellevue'])
+# projk = projectkey_extractor(fullpath)
+# ins = datScraper(fullpath)
+# # ins.df
+# df = ins.getdf()
+# df = col_name_fix(df)
+# df = new_instrumentation(df)
+# df['ProjectKey'] = projk.lower()
+# smallerdf = date_slice_df(df,name_in_pg[projk])
+# max = pull_max_date(name_in_pg[projk])
+# min = pull_minimum_date(name_in_pg[projk])
+# max,min
+# if 'TIMESTAMP' in df.columns:
+#     print("#1")
+#     if df.TIMESTAMP.dtype=='<M8[ns]' or df.TIMESTAMP.dtype=='>M8[ns]':
+#         print("#2")
+#         sliced_df = df.loc[~((df.TIMESTAMP>=min) & (df.TIMESTAMP<=max))]
+#     else:
+#         print("#3")
+#         df.TIMESTAMP = df.TIMESTAMP.astype('datetime64')
+#         sliced_df = df.loc[~((df.TIMESTAMP>=min) & (df.TIMESTAMP<=max))]
+#     return sliced_df
+# else:
+#     return 'Not MET-derived dataframe or TIMESTAMP field not available'
+
+
 def test_task():
     print("test ok")
     df_dict = {}
@@ -28,6 +57,28 @@ def test_task():
         # create dataframes
         # while len(df_dict)<3:
         for i in current_data.items():
+            """
+            1. Bellevue is currently offline on the winderosion site
+            2. datScraper will create a dataframe with the .dat file provided
+            by the fullpath variable
+            3. getdf method will do some initial cleanup related to .dat files:
+            - removing escape characters like forward slashes
+            - fixing float precision across the whole dataframe
+            - casting timestamp as a timestamp data type if it is anything else
+            - removing backslashes and dots from fieldnames
+            4. col_name_fix will look for fieldname inconsistencies across all
+            the dataframes, it will change their name to make the dataframes
+            easier to concat later on
+            5. new_instrumentation will add new fields/sensors found in some newer
+            instrument setups
+            6. projectkey (or the name of the site ) is added to dataframe
+            7. data_slice_df will create a subset of the dataframe with the whole
+            .dat file based on dataranges not currently on postgres.
+            8. after the whole sliced dataframe is concatenated, row_check will
+            send row by row up to PG  ONLY if timestamp + projectkey is not found.
+
+
+            """
             if 'BellevueTable1' not in i[1]:
                 print(i[1])
                 fullpath = os.path.join(files_path,i[1])
@@ -44,11 +95,12 @@ def test_task():
 
                 df_dict.update({f'df{count}':smallerdf})
                 count+=1
-        # return df_dict
-        print("assembling new dataframe")
-        finaldf = pd.concat([i[1] for i in df_dict.items()])
-        print("starting row check and ingest")
-        row_check(finaldf)
+        return df_dict
+        # print("assembling new dataframe")
+        # finaldf = pd.concat([i[1] for i in df_dict.items()])
+
+        # print("starting row check and ingest")
+        # row_check(finaldf)
 
 
     else:
@@ -556,7 +608,7 @@ def path_handler(site,historic=False,year=None):
 
 files_path = r"https://winderosionnetwork.org/files/"
 
-sites = ["akron", "bigspring", "cper", "heartrockranch",
+sites = ["akron", "bigspring", "cper", "bellevue",
         "holloman", "jornada", "lordsburg",
         "moab", "morton", "northernplains", "pullman", "redhills",
         "sanluis", "southernplains", "twinvalley"]
@@ -567,7 +619,7 @@ historic_files = {
              "BigSpring_MetData_2016.csv"],
 "cper":["CPER_MetData_2015.csv","CPER_MetData_2016.csv","CPER_MetData_2017.csv",
         "CPER_MetData_2018.csv"],
-"heartrockranch": ["Bellevue_MetData_2015.csv","Bellevue_MetData_2016.csv",
+"bellevue": ["Bellevue_MetData_2015.csv","Bellevue_MetData_2016.csv",
                     "Bellevue_MetData_2017.csv","Bellevue_MetData_2018.csv"],
 "holloman":["Holloman_MetData_2015.csv","Holloman_MetData_2016.csv",
             "Holloman_MetData_2017.csv","Holloman_MetData_2018.csv"],
@@ -591,7 +643,7 @@ current_data = {
 "akron": "datfiles/Akron/AkronTable1.dat",
 "bigspring":"datfiles/BigSpring/BigSpringTable1.dat",
 "cper":"datfiles/CPER/CPERTable1.dat",
-"heartrockranch":"datfiles/Bellevue/BellevueTable1.dat",
+"bellevue":"datfiles/Bellevue/BellevueTable1.dat",
 "holloman":"datfiles/Holloman/HollomanTable1.dat",
 "jornada":"datfiles/JER/JERTable1.dat",
 "lordsburg":"datfiles/Lordsburg/LordsburgTable1.dat",
