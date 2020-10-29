@@ -16,8 +16,8 @@ import io
 # datScraper(p)
 
 
-# @task()
-test = test_task()
+@task()
+# test = test_task()
 # current_data['akron']
 
 # fullpath = os.path.join(files_path,current_data['bellevue'])
@@ -95,12 +95,12 @@ def test_task():
 
                 df_dict.update({f'df{count}':smallerdf})
                 count+=1
-        return df_dict
-        # print("assembling new dataframe")
-        # finaldf = pd.concat([i[1] for i in df_dict.items()])
+        # return df_dict
+        print("assembling new dataframe")
+        finaldf = pd.concat([i[1] for i in df_dict.items()])
 
-        # print("starting row check and ingest")
-        # row_check(finaldf)
+        print("starting row check and ingest")
+        row_check(finaldf)
 
 
     else:
