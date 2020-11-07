@@ -6,46 +6,8 @@ from src.utils.tools import db
 from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
-# help(table_create)
-# test_data = {"akron": r"datfiles/Akron/AkronTable1.dat"}
-
-#
-# for i in current_data.items():
-#     print(i)
-# p = os.path.join(files_path,current_data['morton'])
-# datScraper(p)
-
 
 @task()
-# test = test_task()
-# current_data['akron']
-
-# fullpath = os.path.join(files_path,current_data['bellevue'])
-# projk = projectkey_extractor(fullpath)
-# ins = datScraper(fullpath)
-# # ins.df
-# df = ins.getdf()
-# df = col_name_fix(df)
-# df = new_instrumentation(df)
-# df['ProjectKey'] = projk.lower()
-# smallerdf = date_slice_df(df,name_in_pg[projk])
-# max = pull_max_date(name_in_pg[projk])
-# min = pull_minimum_date(name_in_pg[projk])
-# max,min
-# if 'TIMESTAMP' in df.columns:
-#     print("#1")
-#     if df.TIMESTAMP.dtype=='<M8[ns]' or df.TIMESTAMP.dtype=='>M8[ns]':
-#         print("#2")
-#         sliced_df = df.loc[~((df.TIMESTAMP>=min) & (df.TIMESTAMP<=max))]
-#     else:
-#         print("#3")
-#         df.TIMESTAMP = df.TIMESTAMP.astype('datetime64')
-#         sliced_df = df.loc[~((df.TIMESTAMP>=min) & (df.TIMESTAMP<=max))]
-#     return sliced_df
-# else:
-#     return 'Not MET-derived dataframe or TIMESTAMP field not available'
-
-
 def test_task():
     print("test ok")
     df_dict = {}
@@ -88,6 +50,7 @@ def test_task():
                 df = ins.getdf()
                 df = col_name_fix(df)
                 df = new_instrumentation(df)
+                df = remove_emptytimestamps(df)
                 df['ProjectKey'] = projk.lower() # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
@@ -98,16 +61,29 @@ def test_task():
         # return df_dict
         print("assembling new dataframe")
         finaldf = pd.concat([i[1] for i in df_dict.items()])
-
-        print("starting row check and ingest")
-        row_check(finaldf)
+        finaldf = type_fix(finaldf)
+        return finaldf
+        # print("starting row check and ingest")
+        # row_check(finaldf)
 
 
     else:
         print("table not found")
 
+def type_fix(df):
+    df = df.copy()
+    for i in df.columns:
+        if (df[i].dtype == "object") and ("ProjectKey" not in i) and ("TIMESTAMP" not in i):
+            df[i] = df[i].astype(float)
+        if "RECORD" in i:
+            df.RECORD = df.RECORD.astype("int64")
+    return df
 
-# df =quick_check(os.path.join(files_path,current_data['akron']))
+def remove_emptytimestamps(dataframe):
+    if "TIMESTAMP" in dataframe.columns:
+        dataframe = dataframe.loc[~pd.isnull(dataframe.TIMESTAMP)==True].copy()
+        dataframe = dataframe.reset_index(drop=True)
+    return dataframe
 
 def quick_check(path):
     arrays = []
@@ -446,23 +422,6 @@ def second_round(df):
             df.rename(columns={f'{i}':'{0}'.format(i.replace("/","_"))}, inplace=True)
     return df
 
-name_in_pg = {
-'akron':'Akron',
-'jer':'JER',
-'bigspring':'BigSpring',
-'lordsburg':'Lordsburg',
-'moab':'Moab',
-'morton':'Morton',
-'holloman':'Holloman',
-'bellevue': 'Bellevue',
-'mandan':'Mandan',
-'redhills':'RedHills',
-'twinvalley':'TwinValley',
-'sanluis':'SanLuis',
-'pullman':'Pullman',
-'elreno':'ElReno',
-'cper':'CPER'
-}
 
 def col_name_fix(df):
     for i in df.columns:
@@ -554,7 +513,6 @@ def col_name_fix(df):
         if i in rep:
             df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'Sensit_Tot'))}, inplace=True)
 
-
     return df
 
 def new_instrumentation(df):
@@ -586,10 +544,58 @@ def new_instrumentation(df):
         if 'Rn_Avg' not in i:
             df['Rn_Avg'] = np.nan
 
-        if 'BattV_Min' not in i:
-            df['BattV_Min'] = np.nan
+        #new as of sept 30 (most recent ingest)
+        if 'Sampling_time_2m' not in i:
+            df['Sampling_time_2m'] = np.nan
+
+        if 'PM1_2m_Avg' not in i:
+            df['PM1_2m_Avg'] = np.nan
+
+        if 'PM2_5_2m_Avg' not in i:
+            df['PM2_5_2m_Avg'] = np.nan
+
+        if 'PM2_5_2m_Avg' not in i:
+            df['PM2_5_2m_Avg'] = np.nan
+
+        if 'PM4_2m_Avg' not in i:
+            df['PM4_2m_Avg'] = np.nan
+
+        if 'PM10_2m_Avg' not in i:
+            df['PM10_2m_Avg'] = np.nan
+
+        if 'TtlMeas_2m_Avg' not in i:
+            df['TtlMeas_2m_Avg'] = np.nan
+
+        if 'Sampling_time_4m' not in i:
+            df['Sampling_time_4m'] = np.nan
+
+        if 'PM1_4m_Avg' not in i:
+            df['PM1_4m_Avg'] = np.nan
+
+        if 'PM2_5_4m_Avg' not in i:
+            df['PM2_5_4m_Avg'] = np.nan
+
+        if 'PM2_5_2m_Avg' not in i:
+            df['PM2_5_2m_Avg'] = np.nan
+
+        if 'PM4_4m_Avg' not in i:
+            df['PM4_4m_Avg'] = np.nan
+
+        if 'PM10_4m_Avg' not in i:
+            df['PM10_4m_Avg'] = np.nan
+
+        if 'TtlMeas_4m_Avg' not in i:
+            df['TtlMeas_4m_Avg'] = np.nan
+
+        if 'BattV_Min' in i:
+            df.drop(['BattV_Min'], axis=1)
     return df
 
+def remove_emptytimestamps(dataframe):
+    if "TIMESTAMP" in dataframe.columns:
+        dataframe = dataframe.loc[~pd.isnull(dataframe.TIMESTAMP)==True].copy()
+        dataframe = dataframe.reset_index(drop=True)
+    return dataframe
 
 def path_handler(site,historic=False,year=None):
     if historic==False and year==None:
@@ -628,7 +634,7 @@ historic_files = {
 # "lordsburg":[],
 "moab": ["Moab_MetData_2016.csv","Moab_MetData_2017.csv","Moab_MetData_2018.csv"],
 # "morton":[],
-"northernplains":["Mandan_MetData_2015.csv", "Mandan_MetData_2016.csv",
+"mandan":["Mandan_MetData_2015.csv", "Mandan_MetData_2016.csv",
                     "Mandan_MetData_2017.csv","Mandan_MetData_2018.csv"],
 "pullman": ["Pullman_MetData_2016.csv","Pullman_MetData_2017.csv","Pullman_MetData_2018.csv"],
 
@@ -638,6 +644,24 @@ historic_files = {
 "southernplains":["ElReno_MetData_2017.csv", "ElReno_MetData_2018.csv"],
 "twinvalley":["TwinValley_MetData_2019.csv"]
 }
+name_in_pg = {
+'akron':'Akron',
+'jornada':'JER',
+'bigspring':'BigSpring',
+'lordsburg':'Lordsburg',
+'moab':'Moab',
+'morton':'Morton',
+'holloman':'Holloman',
+'bellevue': 'Bellevue',
+'mandan':'Mandan',
+'redhills':'RedHills',
+'twinvalley':'TwinValley',
+'sanluis':'SanLuis',
+'pullman':'Pullman',
+'elreno':'ElReno',
+'cper':'CPER'
+}
+
 
 current_data = {
 "akron": "datfiles/Akron/AkronTable1.dat",
@@ -649,10 +673,10 @@ current_data = {
 "lordsburg":"datfiles/Lordsburg/LordsburgTable1.dat",
 "moab":"datfiles/Moab/MoabTable1.dat",
 "morton":"datfiles/Morton/MortonTable1.dat",
-"northernplains":"datfiles/Mandan/MandanTable1.dat",
+"mandan":"datfiles/Mandan/MandanTable1.dat",
 "pullman":"datfiles/Pullman/PullmanTable1.dat",
 "redhills":"datfiles/RedHills/RedHillsTable1.dat",
 "sanluis":"datfiles/SanLuis/SanLuisTable1.dat",
-"southernplains":"datfiles/ElReno/ElRenoTable1.dat",
+"elreno":"datfiles/ElReno/ElRenoTable1.dat",
 "twinvalley":"datfiles/TwinValley/TwinValleyTable1.dat"
 }
