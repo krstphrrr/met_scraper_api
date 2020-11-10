@@ -588,7 +588,7 @@ def new_instrumentation(df):
             df['TtlMeas_4m_Avg'] = np.nan
 
         if 'BattV_Min' in i:
-            df.drop(['BattV_Min'], axis=1)
+            df.drop(['BattV_Min'], axis=1, inplace=True)
     return df
 
 def remove_emptytimestamps(dataframe):
