@@ -51,7 +51,7 @@ def test_task():
                 df = col_name_fix(df)
                 df = new_instrumentation(df)
                 df = remove_emptytimestamps(df)
-                df['ProjectKey'] = projk.lower() # adding projectkey to dataframe
+                df['ProjectKey'] = projk # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
 
@@ -223,8 +223,9 @@ def pull_max_date(projectkey):
         con = d.str
         cur = con.cursor()
 
+
 def date_slice_df(df, projectkey):
-    projectkey = projectkey.capitalize() if 'jer' in projectkey else projectkey
+    # projectkey = projectkey.capitalize() if 'jer' in projectkey else projectkey
     max = pull_max_date(projectkey)
     min = pull_minimum_date(projectkey)
     if 'TIMESTAMP' in df.columns:
@@ -241,7 +242,10 @@ def projectkey_extractor(path):
     if os.path.splitext(os.path.basename(path))[1]=='.csv':
         return [i.lower() for i in os.path.basename(path).split('_') if ("Met" not in i) and (os.path.splitext(i)[1]=='')][0]
     elif os.path.splitext(os.path.basename(path))[1]=='.dat':
-        return [i.lower() for i in os.path.basename(path).split('Table') if (os.path.splitext(i)[1]=='')][0]
+        if "JER" in os.path.basename(path):
+            return [i.upper() for i in os.path.basename(path).split('Table') if (os.path.splitext(i)[1]=='')][0]
+        else:
+            return [i.lower() for i in os.path.basename(path).split('Table') if (os.path.splitext(i)[1]=='')][0]
 
 def pg_timestamp_check():
     pass
