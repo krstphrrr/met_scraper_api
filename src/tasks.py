@@ -224,7 +224,7 @@ def pull_max_date(projectkey):
         cur = con.cursor()
 
 def date_slice_df(df, projectkey):
-    # projectk = projectkey.capitalize()
+    projectkey = projectkey.capitalize() if 'jer' in projectkey else projectkey
     max = pull_max_date(projectkey)
     min = pull_minimum_date(projectkey)
     if 'TIMESTAMP' in df.columns:
@@ -597,20 +597,20 @@ def remove_emptytimestamps(dataframe):
         dataframe = dataframe.reset_index(drop=True)
     return dataframe
 
-def path_handler(site,historic=False,year=None):
-    if historic==False and year==None:
-        prepath = files_path
-        realpath = os.path.join(prepath,current_data[site])
-        return realpath
-    elif historic==True and year!=None and isinstance(int(year),int)==True:
-        prepath = files_path
-        for i in historic_files[site]:
-            if str(year) in i:
-                specific_file = i
-        realpath = os.path.join(prepath, specific_file)
-        return realpath
-    else:
-        print("site or year not found")
+# def path_handler(site,historic=False,year=None):
+#     if historic==False and year==None:
+#         prepath = files_path
+#         realpath = os.path.join(prepath,current_data[site])
+#         return realpath
+#     elif historic==True and year!=None and isinstance(int(year),int)==True:
+#         prepath = files_path
+#         for i in historic_files[site]:
+#             if str(year) in i:
+#                 specific_file = i
+#         realpath = os.path.join(prepath, specific_file)
+#         return realpath
+#     else:
+#         print("site or year not found")
 
 files_path = r"https://winderosionnetwork.org/files/"
 
