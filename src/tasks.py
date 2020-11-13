@@ -62,9 +62,9 @@ def test_task():
         print("assembling new dataframe")
         finaldf = pd.concat([i[1] for i in df_dict.items()])
         finaldf = type_fix(finaldf)
-        return finaldf
-        # print("starting row check and ingest")
-        # row_check(finaldf)
+        # return finaldf
+        print("starting row check and ingest")
+        row_check(finaldf)
 
 
     else:
