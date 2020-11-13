@@ -619,7 +619,7 @@ def remove_emptytimestamps(dataframe):
 files_path = r"https://winderosionnetwork.org/files/"
 
 sites = ["akron", "bigspring", "cper", "bellevue",
-        "holloman", "jornada", "lordsburg",
+        "holloman", "JER", "lordsburg",
         "moab", "morton", "northernplains", "pullman", "redhills",
         "sanluis", "southernplains", "twinvalley"]
 
@@ -633,7 +633,7 @@ historic_files = {
                     "Bellevue_MetData_2017.csv","Bellevue_MetData_2018.csv"],
 "holloman":["Holloman_MetData_2015.csv","Holloman_MetData_2016.csv",
             "Holloman_MetData_2017.csv","Holloman_MetData_2018.csv"],
-"jornada": ["JER_MetData_2015.csv","JER_MetData_2016.csv",
+"JER": ["JER_MetData_2015.csv","JER_MetData_2016.csv",
             "JER_MetData_2017.csv","JER_MetData_2018.csv"],
 # "lordsburg":[],
 "moab": ["Moab_MetData_2016.csv","Moab_MetData_2017.csv","Moab_MetData_2018.csv"],
@@ -650,7 +650,7 @@ historic_files = {
 }
 name_in_pg = {
 'akron':'Akron',
-'jornada':'JER',
+'JER':'JER',
 'bigspring':'BigSpring',
 'lordsburg':'Lordsburg',
 'moab':'Moab',
@@ -673,7 +673,7 @@ current_data = {
 "cper":"datfiles/CPER/CPERTable1.dat",
 "bellevue":"datfiles/Bellevue/BellevueTable1.dat",
 "holloman":"datfiles/Holloman/HollomanTable1.dat",
-"jornada":"datfiles/JER/JERTable1.dat",
+"JER":"datfiles/JER/JERTable1.dat",
 "lordsburg":"datfiles/Lordsburg/LordsburgTable1.dat",
 "moab":"datfiles/Moab/MoabTable1.dat",
 "morton":"datfiles/Morton/MortonTable1.dat",
