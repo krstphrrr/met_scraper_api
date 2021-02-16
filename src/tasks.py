@@ -42,10 +42,11 @@ def test_task():
 
             """
             if 'BellevueTable1' not in i[1]:
+
                 print(i[1])
                 fullpath = os.path.join(files_path,i[1])
                 projk = projectkey_extractor(fullpath)
-                print("entering scraper 2 df function..")
+                print(f"entering scraper 2 df function for {i}")
                 ins = datScraper(fullpath)
                 df = ins.getdf()
                 df = col_name_fix(df)
@@ -98,6 +99,7 @@ def quick_check(path):
                     split_line = each_line.split(",")
                     arrays.append([each_character.replace("\"","") for each_character in split_line])
     arrays = arrays[1]
+
     if os.path.splitext(path)[1]=='.dat':
         #REPORTBACK: line 11138(or line 11139 if not 0-index) is malformed in the currently posted DAT file for Pullman
         df = pd.read_table(path, sep=",", skiprows=4, low_memory=False) if ('PullmanTable1' not in path) else pd.read_table(path, sep=",", skiprows=[0,1,2,3,11138], low_memory=False)
@@ -160,6 +162,7 @@ def row_check(df):
             if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], df.iloc[i:i+1].ProjectKey.values[0]):
                 print(f'timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" already in database, moving on..' )
             else:
+                print(f'ingesting timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" ')
                 ingesterv2.main_ingest(df.iloc[i:i+1],"raw_met_data", d.str, 10000)
         except Exception as e:
             print(e)
@@ -228,6 +231,7 @@ def date_slice_df(df, projectkey):
     # projectkey = projectkey.capitalize() if 'jer' in projectkey else projectkey
     max = pull_max_date(projectkey)
     min = pull_minimum_date(projectkey)
+    print(f"slicing dataframe '{projectkey}' with min:'{min}', max:'{max}'" )
     if 'TIMESTAMP' in df.columns:
         if df.TIMESTAMP.dtype=='<M8[ns]' or df.TIMESTAMP.dtype=='>M8[ns]':
             sliced_df = df.loc[~((df.TIMESTAMP>=min) & (df.TIMESTAMP<=max))]
@@ -403,9 +407,9 @@ class datScraper:
                 self.df.rename(columns={f'{i}':'{0}'.format(i.replace("/","_"))}, inplace=True)
             # print(i, "post slash")
         # print("fixing '.' characters in field name..")
-        for i in self.df.columns:
-            if '.' in i:
-                self.df.rename(columns={f'{i}':'{0}'.format(i.replace(".",""))}, inplace=True)
+        # for i in self.df.columns:
+        #     if '.' in i:
+        #         self.df.rename(columns={f'{i}':'{0}'.format(i.replace(".",""))}, inplace=True)
         # print("casting timestamp as datetime..")
         for i in self.df.columns:
             if 'TIMESTAMP' in i:
