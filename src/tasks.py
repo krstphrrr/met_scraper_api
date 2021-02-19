@@ -469,21 +469,21 @@ def col_name_fix(df):
         if i in rep:
             df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS5_5M_m_s'))}, inplace=True)
 
-        rep = ['MaxWS4_25M_m_s','MaxWS_25m_m_s']
+        rep = ['MaxWS4_25M_m_s','MaxWS_25m_m_s',"MaxWS4_2.5M_m_s","MaxWS4_2.5m_m_s"]
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS4_25M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS4_2.5M_m_s'))}, inplace=True)
 
-        rep = ['MaxWS3_15M_m_s','MaxWS_15m_m_s']
+        rep = ['MaxWS3_15M_m_s','MaxWS_15m_m_s', 'MaxWS_1.5m_m_s', 'MaxWS_1.5M_m_s']
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS3_15M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS3_1.5M_m_s'))}, inplace=True)
 
         rep = ['MaxWS2_1M_m_s','MaxWS_1m_m_s']
         if i in rep:
             df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS2_1M_m_s'))}, inplace=True)
 
-        rep = ['MaxWS1_05M_m_s','MaxWS_05m_m_s']
+        rep = ['MaxWS1_05M_m_s','MaxWS_05m_m_s', 'MaxWS_0.5m_m_s','MaxWS_0.5M_m_s' ]
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS1_05M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'MaxWS1_0.5M_m_s'))}, inplace=True)
 
         rep = ['StdDevWS2_1M_m_s','StDevWS_2M_m_s']
         if i in rep:
@@ -497,21 +497,21 @@ def col_name_fix(df):
         if i in rep:
             df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS5_5M_m_s'))}, inplace=True)
 
-        rep = ['AvgWS4_25M_m_s','AvgWS_25m_m_s']
+        rep = ['AvgWS4_25M_m_s','AvgWS_25m_m_s','AvgWS4_2.5M_m_s','AvgWS4_2.5m_m_s']
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS4_25M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS4_2.5M_m_s'))}, inplace=True)
 
-        rep = ['AvgWS3_15M_m_s','AvgWS_15m_m_s']
+        rep = ['AvgWS3_15M_m_s','AvgWS_15m_m_s','AvgWS3_1.5M_m_s','AvgWS3_1.5m_m_s']
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS3_15M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS3_1.5M_m_s'))}, inplace=True)
 
         rep = ['AvgWS_1m__m_s','AvgWS2_1M_m_s']
         if i in rep:
             df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS2_1M_m_s'))}, inplace=True)
 
-        rep = ['AvgWS1_05M_m_s','AvgWS_05m_m_s','AvgWS1_05m_m_s']
+        rep = ['AvgWS1_05M_m_s','AvgWS_05m_m_s','AvgWS1_05m_m_s', 'AvgWS1_0.5M_m_s','AvgWS1_0.5m_m_s']
         if i in rep:
-            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS1_05M_m_s'))}, inplace=True)
+            df.rename(columns={f'{i}':'{0}'.format(i.replace(f"{i}",'AvgWS1_0.5M_m_s'))}, inplace=True)
 
         rep = ['Switch','Switch12V']
         if i in rep:
