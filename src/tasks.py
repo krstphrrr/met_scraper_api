@@ -8,9 +8,11 @@ import time
 import io
 
 @task()
+# test_task()
 def test_task():
     print("test ok")
     df_dict = {}
+    tableNameCollect = {}
     # check if table exists
 
     count=1
@@ -41,6 +43,7 @@ def test_task():
 
 
             """
+
             if 'BellevueTable1' not in i[1]:
 
                 print(i[1])
@@ -48,23 +51,31 @@ def test_task():
                 projk = projectkey_extractor(fullpath)
                 print(f"entering scraper 2 df function for {i}")
                 ins = datScraper(fullpath)
+
                 df = ins.getdf()
+                # tableNameCollect[f"{projk}_firstdf"] = df.columns
                 df = col_name_fix(df)
+                # tableNameCollect[f"{projk}_seconddf"] = df.columns
                 df = new_instrumentation(df)
+                # tableNameCollect[f"{projk}_thirddf"] = df.columns
                 df = remove_emptytimestamps(df)
+                # tableNameCollect[f"{projk}_fourthdf"] = df.columns
                 df['ProjectKey'] = projk # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
+                # tableNameCollect[f"{projk}_minidf"] = smallerdf.columns
 
 
                 df_dict.update({f'df{count}':smallerdf})
                 count+=1
+                # print(tableNameCollect)
         # return df_dict
         print("assembling new dataframe")
         finaldf = pd.concat([i[1] for i in df_dict.items()])
         finaldf = type_fix(finaldf)
         # return finaldf
         print("starting row check and ingest")
+        # return finaldf.columns
         row_check(finaldf)
 
 
