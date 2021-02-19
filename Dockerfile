@@ -1,9 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 RUN apt-get update
 ENV TZ=America
 RUN apt-get install -y tzdata
-RUN apt-get install python python3-pip \
+RUN apt-get install python3.7 python3-pip \
     libpq-dev postgresql postgresql-contrib \
     unixodbc-dev python3-tk -y
 
