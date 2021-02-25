@@ -570,11 +570,11 @@ def new_instrumentation(df):
         if 'PM1_2m_Avg' not in i:
             df['PM1_2m_Avg'] = np.nan
 
-        if 'PM2_5_2m_Avg' not in i:
-            df['PM2_5_2m_Avg'] = np.nan
+        if 'PM2.5_2m_Avg' not in i:
+            df['PM2.5_2m_Avg'] = np.nan
 
-        if 'PM2_5_2m_Avg' not in i:
-            df['PM2_5_2m_Avg'] = np.nan
+        if 'PM2.5_2m_Avg' not in i:
+            df['PM2.5_2m_Avg'] = np.nan
 
         if 'PM4_2m_Avg' not in i:
             df['PM4_2m_Avg'] = np.nan
@@ -591,11 +591,11 @@ def new_instrumentation(df):
         if 'PM1_4m_Avg' not in i:
             df['PM1_4m_Avg'] = np.nan
 
-        if 'PM2_5_4m_Avg' not in i:
-            df['PM2_5_4m_Avg'] = np.nan
+        if 'PM2.5_4m_Avg' not in i:
+            df['PM2.5_4m_Avg'] = np.nan
 
-        if 'PM2_5_2m_Avg' not in i:
-            df['PM2_5_2m_Avg'] = np.nan
+        if 'PM2.5_2m_Avg' not in i:
+            df['PM2.5_2m_Avg'] = np.nan
 
         if 'PM4_4m_Avg' not in i:
             df['PM4_4m_Avg'] = np.nan
