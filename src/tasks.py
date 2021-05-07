@@ -167,6 +167,9 @@ def quick_ingest(whichset):
 
 def row_check(df):
     d = db("met")
+    con = d.str
+
+
     for i in range(len(df)):
 
         try:
@@ -175,9 +178,13 @@ def row_check(df):
             else:
                 print(f'ingesting timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" ')
                 ingesterv2.main_ingest(df.iloc[i:i+1],"raw_met_data", d.str, 10000)
+                con.commmit()
+
         except Exception as e:
             print(e)
             d = db("met")
+            con = d.str
+ 
 
 def pg_check(timestamp, projectkey):
     qry=f"""SELECT EXISTS(
