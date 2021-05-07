@@ -149,7 +149,7 @@ def quick_ingest(whichset):
                 projk = projectkey_extractor(fullpath)
                 inst = datScraper(fullpath)
                 df = inst.getdf()
-                df['ProjectKey'] = projk
+                df['ProjectKey'] = name_in_pg[projk]
                 df = second_round(df)
                 df = df.loc[pd.isnull(df.TIMESTAMP)!=True] if any(pd.isnull(df.TIMESTAMP.unique())) else df
 
@@ -173,7 +173,7 @@ def row_check(df):
     for i in range(len(df)):
 
         try:
-            if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], df.iloc[i:i+1].ProjectKey.values[0]):
+            if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], name_in_pg[df.iloc[i:i+1].ProjectKey.values[0]]):
                 print(f'timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" already in database, moving on..' )
             else:
                 print(f'ingesting timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" ')
@@ -184,8 +184,8 @@ def row_check(df):
             print(e)
             d = db("met")
             con = d.str
- 
 
+name_in_pg['akron']
 def pg_check(timestamp, projectkey):
     qry=f"""SELECT EXISTS(
                 SELECT *
