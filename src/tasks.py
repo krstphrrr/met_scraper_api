@@ -185,7 +185,7 @@ def row_check(df):
             d = db("met")
             con = d.str
 
-name_in_pg['akron']
+
 def pg_check(timestamp, projectkey):
     qry=f"""SELECT EXISTS(
                 SELECT *
