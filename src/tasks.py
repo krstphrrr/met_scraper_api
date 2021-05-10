@@ -7,23 +7,8 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 
-test = {1:"abc",119:"def"}
-for i in test.items():
-    if i[1]==2:
-        print("YE")
-    else:
-        print("no")
-if any([False for k,v in test.items() if 3 not in test.values()])
-
-if( 2 not in test.values()) or( len(test.items())==0):
-    print("Df")
-[True for k,v in test.items() if ]
-if sum([k for k,v in test.items()])==120:
-    print("ES IGUAL")
-
-len(test.items())
-# @task()
-test_task()
+@task()
+# test_task()
 def test_task():
     print("test ok")
     df_dict = {}
