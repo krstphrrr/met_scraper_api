@@ -7,7 +7,7 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 
-# @task()
+@task()
 # test_task()
 def test_task():
     print("test ok")
