@@ -7,8 +7,23 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 
-@task()
-# test_task()
+test = {1:"abc",119:"def"}
+for i in test.items():
+    if i[1]==2:
+        print("YE")
+    else:
+        print("no")
+if any([False for k,v in test.items() if 3 not in test.values()])
+
+if( 2 not in test.values()) or( len(test.items())==0):
+    print("Df")
+[True for k,v in test.items() if ]
+if sum([k for k,v in test.items()])==120:
+    print("ES IGUAL")
+
+len(test.items())
+# @task()
+test_task()
 def test_task():
     print("test ok")
     df_dict = {}
@@ -66,17 +81,31 @@ def test_task():
                 # tableNameCollect[f"{projk}_minidf"] = smallerdf.columns
 
 
-                df_dict.update({f'df{count}':smallerdf})
-                count+=1
+                # df_dict.update({f'df{count}':projk})
+                # the final dataframe assembled from the large df_dictionary
+                # is too large for ubuntu.
+                # will send each dataframe individually
+                # finaldf = smallerdf
+                print("assembling new dataframe")
+                finaldf = type_fix(smallerdf)
+                if projk not in df_dict.values() or len(df_dict.items())==0:
+                    df_dict.update({f'df{count}':projk})
+                    # print("starting row check and ingest")
+                    row_check(finaldf)
+                    count+=1
+                # if sum([k for k,v in test.items()])==120:
+                #     df_dict={}
+
+
                 # print(tableNameCollect)
         # return df_dict
-        print("assembling new dataframe")
-        finaldf = pd.concat([i[1] for i in df_dict.items()])
-        finaldf = type_fix(finaldf)
+        # print("assembling new dataframe")
+        # finaldf = pd.concat([i[1] for i in df_dict.items()])
+        # finaldf = type_fix(finaldf)
         # return finaldf
-        print("starting row check and ingest")
+        # print("starting row check and ingest")
         # return finaldf.columns
-        row_check(finaldf)
+        # row_check(finaldf)
 
 
     else:
@@ -178,7 +207,7 @@ def row_check(df):
             else:
                 print(f'ingesting timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" ')
                 ingesterv2.main_ingest(df.iloc[i:i+1],"raw_met_data", d.str, 10000)
-                con.commmit()
+
 
         except Exception as e:
             print(e)
