@@ -67,7 +67,7 @@ def test_task():
                 # tableNameCollect[f"{projk}_minidf"] = smallerdf.columns
 
 
-                df_dict.update({f'df{count}':projk})
+                df_dict.update({f'df{count}':smallerdf})
                 # the final dataframe assembled from the large df_dictionary
                 # is too large for ubuntu.
                 # will send each dataframe individually
