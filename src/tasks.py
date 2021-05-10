@@ -7,7 +7,7 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 
-@task()
+# @task()
 # test_task()
 def test_task():
     print("test ok")
@@ -72,7 +72,7 @@ def test_task():
                 # will send each dataframe individually
                 # finaldf = smallerdf
                 print("assembling new dataframe")
-                finaldf = type_fix(smallerdf)
+                finaldf = type_fix(smallerdf) # slimmed memory consumption of typefix
                 if projk not in df_dict.values() or len(df_dict.items())==0:
                     df_dict.update({f'df{count}':projk})
                     # print("starting row check and ingest")
@@ -97,13 +97,12 @@ def test_task():
         print("table not found")
 
 def type_fix(df):
-    df = df.copy()
     for i in df.columns:
         if (df[i].dtype == "object") and ("ProjectKey" not in i) and ("TIMESTAMP" not in i):
             df[i] = df[i].astype(float)
         if "RECORD" in i:
             df.RECORD = df.RECORD.astype("int64")
-    return df
+    # return df
 
 def remove_emptytimestamps(dataframe):
     if "TIMESTAMP" in dataframe.columns:
