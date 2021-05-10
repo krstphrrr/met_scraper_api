@@ -139,7 +139,7 @@ def quick_ingest(whichset):
                 count+=1
 
         # return internal_dict
-        # for historic data -- csv
+        # for historic data -- cs
     elif isinstance(whichset['akron'],list):
         for i in selectedset.items():
             for j in i[1]:
@@ -173,7 +173,7 @@ def row_check(df):
     for i in range(len(df)):
 
         try:
-            if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], name_in_pg[df.iloc[i:i+1].ProjectKey.values[0]]):
+            if pg_check(df.iloc[i:i+1].TIMESTAMP.values[0], df.iloc[i:i+1].ProjectKey.values[0]):
                 print(f'timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" already in database, moving on..' )
             else:
                 print(f'ingesting timestamp:"{df.iloc[i:i+1].TIMESTAMP.values[0]}" and projectkey: "{df.iloc[i:i+1].ProjectKey.values[0]}" ')
