@@ -63,34 +63,35 @@ def test_task():
                 df['ProjectKey'] = projk # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,name_in_pg[projk])
+                print("SLICE CREATED")
                 # tableNameCollect[f"{projk}_minidf"] = smallerdf.columns
 
 
-                # df_dict.update({f'df{count}':projk})
+                df_dict.update({f'df{count}':projk})
                 # the final dataframe assembled from the large df_dictionary
                 # is too large for ubuntu.
                 # will send each dataframe individually
                 # finaldf = smallerdf
-                print("assembling new dataframe")
-                finaldf = type_fix(smallerdf) # slimmed memory consumption of typefix
-                if projk not in df_dict.values() or len(df_dict.items())==0:
-                    df_dict.update({f'df{count}':projk})
+                # print("assembling new dataframe")
+                # finaldf = type_fix(smallerdf) # slimmed memory consumption of typefix
+                # if projk not in df_dict.values() or len(df_dict.items())==0:
+                    # df_dict.update({f'df{count}':projk})
                     # print("starting row check and ingest")
-                    row_check(finaldf)
-                    count+=1
+                    # row_check(finaldf)
+                count+=1
                 # if sum([k for k,v in test.items()])==120:
                 #     df_dict={}
 
 
                 # print(tableNameCollect)
         # return df_dict
-        # print("assembling new dataframe")
-        # finaldf = pd.concat([i[1] for i in df_dict.items()])
-        # finaldf = type_fix(finaldf)
+        print("assembling new dataframe")
+        finaldf = pd.concat([i[1] for i in df_dict.items()])
+        finaldf = type_fix(finaldf)
         # return finaldf
-        # print("starting row check and ingest")
+        print("starting row check and ingest")
         # return finaldf.columns
-        # row_check(finaldf)
+        row_check(finaldf)
 
 
     else:
