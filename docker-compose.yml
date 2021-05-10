@@ -9,4 +9,4 @@ services:
     image: rabbitmq:3-management
 
   worker:
-    image: celery
+    image: celery:1.0.0
