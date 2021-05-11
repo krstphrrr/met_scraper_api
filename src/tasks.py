@@ -62,7 +62,7 @@ def test_task():
                 # tableNameCollect[f"{projk}_thirddf"] = df.columns
                 df = remove_emptytimestamps(df)
                 # tableNameCollect[f"{projk}_fourthdf"] = df.columns
-                df['ProjectKey'] = name_in_pg[projk] # adding projectkey to dataframe
+                df['ProjectKey'] = projk # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
                 smallerdf = date_slice_df(df,projk)
                 print("SLICE CREATED")
