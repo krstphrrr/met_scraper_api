@@ -49,7 +49,8 @@ def test_task():
 
                 print(i[1])
                 fullpath = os.path.join(files_path,i[1])
-                projk = projectkey_extractor(fullpath)
+                pk = projectkey_extractor(fullpath)
+                projk = name_in_pg[pk]
                 print(f"entering scraper 2 df function for {i}")
                 ins = datScraper(fullpath)
 
@@ -63,7 +64,7 @@ def test_task():
                 # tableNameCollect[f"{projk}_fourthdf"] = df.columns
                 df['ProjectKey'] = name_in_pg[projk] # adding projectkey to dataframe
                 print(f'creating timestamp slice with dataframe {count} of {len(current_data)}..')
-                smallerdf = date_slice_df(df,name_in_pg[projk])
+                smallerdf = date_slice_df(df,projk)
                 print("SLICE CREATED")
                 # tableNameCollect[f"{projk}_minidf"] = smallerdf.columns
 
