@@ -7,6 +7,7 @@ from src.tall_tables.talltables_handler import ingesterv2
 import time
 import io
 
+
 @task()
 # test_task()
 def test_task():
@@ -103,7 +104,7 @@ def type_fix(df):
             df[i] = df[i].astype(float)
         if "RECORD" in i:
             df.RECORD = df.RECORD.astype("int64")
-    # return df
+    return df
 
 def remove_emptytimestamps(dataframe):
     if "TIMESTAMP" in dataframe.columns:
